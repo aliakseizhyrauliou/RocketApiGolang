@@ -12,6 +12,7 @@ type Store struct {
 }
 
 func New() (Store, error) {
+
 	dbUsername := os.Getenv("DB_USERNAME")
 	dbPassword := os.Getenv("DB_PASSWORD")
 	dbHost := os.Getenv("DB_HOST")
@@ -41,13 +42,31 @@ func New() (Store, error) {
 }
 
 func (s Store) GetRocketByID(id string) (rocket.Rocket, error) {
-	return rocket.Rocket{}, nil
+	var rkt rocket.Rocket
+	err := s.db.Get(&rkt, "SELECT * FROM rockets WHERE id=?", id)
+	if err != nil {
+		return rocket.Rocket{}, err
+	}
+
+	return rkt, nil
 }
 
 func (s Store) InsertRocket(rkt rocket.Rocket) (rocket.Rocket, error) {
-	return rocket.Rocket{}, nil
+	_, err := s.db.NamedExec(
+		`INSERT INTO rockets (id, name, type) VALUES (:id, :name, :type)`,
+		rkt,
+	)
+	if err != nil {
+		return rocket.Rocket{}, err
+	}
+
+	return rkt, nil
 }
 
 func (s Store) DeleteRocket(id string) error {
+	_, err := s.db.Exec("DELETE FROM rockets WHERE id=?", id)
+	if err != nil {
+		return err
+	}
 	return nil
 }

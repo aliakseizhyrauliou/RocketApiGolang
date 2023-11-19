@@ -2,7 +2,10 @@
 
 package rocket
 
-import "context"
+import (
+	"context"
+	"log"
+)
 
 type Rocket struct {
 	ID      string
@@ -32,6 +35,8 @@ func (service Service) GetRocketByID(ctx context.Context, id string) (Rocket, er
 }
 
 func (service Service) InsertRocket(ctx context.Context, rkt Rocket) (Rocket, error) {
+	log.Println("HEEY3")
+
 	rocket, err := service.Store.InsertRocket(rkt)
 	if err != nil {
 		return Rocket{}, err

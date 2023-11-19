@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/aliakseizhyrauliou/gRPCApiGo/internal/db"
-	"github.com/aliakseizhyrauliou/gRPCApiGo/internal/rocket"
+	"github.com/aliakseizhyrauliou/gRPCApiGo/transport/grpc"
 	"log"
 )
 
@@ -18,7 +18,11 @@ func Run() error {
 		return err
 	}
 
-	_ = rocket.New(rocketStore)
+	err = grpc.StartGRPCServer(rocketStore)
+	if err != nil {
+		log.Println("error while running migration")
+		return err
+	}
 
 	return nil
 }
