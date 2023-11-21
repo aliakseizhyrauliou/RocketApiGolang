@@ -14,9 +14,10 @@ type Rocket struct {
 }
 
 type Store interface {
-	GetRocketByID(id string) (Rocket, error)
-	InsertRocket(rkt Rocket) (Rocket, error)
-	DeleteRocket(id string) error
+	GetRocketByID(ctx context.Context, id string) (Rocket, error)
+	InsertRocket(ctx context.Context, rkt Rocket) (Rocket, error)
+	DeleteRocket(ctx context.Context, id string) error
+	GetRocketList(ctx context.Context, take int32, skip int32) ([]Rocket, error)
 }
 
 // Responsible for rocket
@@ -25,7 +26,7 @@ type Service struct {
 }
 
 func (service Service) GetRocketByID(ctx context.Context, id string) (Rocket, error) {
-	rocket, err := service.Store.GetRocketByID(id)
+	rocket, err := service.Store.GetRocketByID(ctx, id)
 	if err != nil {
 		return Rocket{}, err
 	}
@@ -34,7 +35,7 @@ func (service Service) GetRocketByID(ctx context.Context, id string) (Rocket, er
 }
 
 func (service Service) InsertRocket(ctx context.Context, rkt Rocket) (Rocket, error) {
-	rocket, err := service.Store.InsertRocket(rkt)
+	rocket, err := service.Store.InsertRocket(ctx, rkt)
 	if err != nil {
 		return Rocket{}, err
 	}
@@ -42,11 +43,21 @@ func (service Service) InsertRocket(ctx context.Context, rkt Rocket) (Rocket, er
 }
 
 func (service Service) DeleteRocket(ctx context.Context, id string) error {
-	err := service.Store.DeleteRocket(id)
+	err := service.Store.DeleteRocket(ctx, id)
 	if err != nil {
 		return err
 	}
 	return nil
+}
+
+func (service Service) GetRocketList(ctx context.Context, take int32, skip int32) ([]Rocket, error) {
+	rockets, err := service.Store.GetRocketList(ctx, take, skip)
+
+	if err != nil {
+		return []Rocket{}, nil
+	}
+
+	return rockets, nil
 }
 
 // Return new service

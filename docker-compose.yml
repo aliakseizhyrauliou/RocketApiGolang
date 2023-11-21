@@ -26,6 +26,8 @@ services:
       DB_TABLE: "postgres"
       DB_PORT: "5432"
       DB_SSL_MODE: "disable"
+      MIGRATION_PATH: "file:///migrations"
+      SERVER_ENV: "production"
     ports:
       - "50051:50051"
     depends_on:

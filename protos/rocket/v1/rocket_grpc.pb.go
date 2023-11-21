@@ -24,6 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 type RocketServiceClient interface {
 	GetRocket(ctx context.Context, in *GetRocketRequest, opts ...grpc.CallOption) (*GetRocketResponse, error)
 	AddRocket(ctx context.Context, in *AddRocketRequest, opts ...grpc.CallOption) (*AddRocketResponse, error)
+	GetRocketList(ctx context.Context, in *GetRocketListRequest, opts ...grpc.CallOption) (*GetRocketListResponse, error)
 	DeleteRocket(ctx context.Context, in *DeleteRocketRequest, opts ...grpc.CallOption) (*DeleteRocketResponse, error)
 }
 
@@ -53,6 +54,15 @@ func (c *rocketServiceClient) AddRocket(ctx context.Context, in *AddRocketReques
 	return out, nil
 }
 
+func (c *rocketServiceClient) GetRocketList(ctx context.Context, in *GetRocketListRequest, opts ...grpc.CallOption) (*GetRocketListResponse, error) {
+	out := new(GetRocketListResponse)
+	err := c.cc.Invoke(ctx, "/rocket.RocketService/GetRocketList", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *rocketServiceClient) DeleteRocket(ctx context.Context, in *DeleteRocketRequest, opts ...grpc.CallOption) (*DeleteRocketResponse, error) {
 	out := new(DeleteRocketResponse)
 	err := c.cc.Invoke(ctx, "/rocket.RocketService/DeleteRocket", in, out, opts...)
@@ -68,6 +78,7 @@ func (c *rocketServiceClient) DeleteRocket(ctx context.Context, in *DeleteRocket
 type RocketServiceServer interface {
 	GetRocket(context.Context, *GetRocketRequest) (*GetRocketResponse, error)
 	AddRocket(context.Context, *AddRocketRequest) (*AddRocketResponse, error)
+	GetRocketList(context.Context, *GetRocketListRequest) (*GetRocketListResponse, error)
 	DeleteRocket(context.Context, *DeleteRocketRequest) (*DeleteRocketResponse, error)
 	mustEmbedUnimplementedRocketServiceServer()
 }
@@ -81,6 +92,9 @@ func (UnimplementedRocketServiceServer) GetRocket(context.Context, *GetRocketReq
 }
 func (UnimplementedRocketServiceServer) AddRocket(context.Context, *AddRocketRequest) (*AddRocketResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddRocket not implemented")
+}
+func (UnimplementedRocketServiceServer) GetRocketList(context.Context, *GetRocketListRequest) (*GetRocketListResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetRocketList not implemented")
 }
 func (UnimplementedRocketServiceServer) DeleteRocket(context.Context, *DeleteRocketRequest) (*DeleteRocketResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteRocket not implemented")
@@ -134,6 +148,24 @@ func _RocketService_AddRocket_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _RocketService_GetRocketList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetRocketListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RocketServiceServer).GetRocketList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/rocket.RocketService/GetRocketList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RocketServiceServer).GetRocketList(ctx, req.(*GetRocketListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _RocketService_DeleteRocket_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DeleteRocketRequest)
 	if err := dec(in); err != nil {
@@ -166,6 +198,10 @@ var RocketService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AddRocket",
 			Handler:    _RocketService_AddRocket_Handler,
+		},
+		{
+			MethodName: "GetRocketList",
+			Handler:    _RocketService_GetRocketList_Handler,
 		},
 		{
 			MethodName: "DeleteRocket",

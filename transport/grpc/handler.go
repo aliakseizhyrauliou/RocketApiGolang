@@ -57,9 +57,8 @@ func (srv *GRPCRocketService) AddRocket(ctx context.Context, req *rkt.AddRocketR
 }
 
 func (srv *GRPCRocketService) DeleteRocket(ctx context.Context, req *rkt.DeleteRocketRequest) (*rkt.DeleteRocketResponse, error) {
-	protoRocket := req.GetRocket()
 
-	err := srv.Service.DeleteRocket(ctx, protoRocket.Id)
+	err := srv.Service.DeleteRocket(ctx, req.GetId())
 
 	if err != nil {
 		return &rkt.DeleteRocketResponse{
@@ -69,6 +68,29 @@ func (srv *GRPCRocketService) DeleteRocket(ctx context.Context, req *rkt.DeleteR
 
 	return &rkt.DeleteRocketResponse{
 		Status: "OK",
+	}, nil
+}
+
+func (srv *GRPCRocketService) GetRocketList(ctx context.Context, req *rkt.GetRocketListRequest) (*rkt.GetRocketListResponse, error) {
+	rocketsArray, err := srv.Service.GetRocketList(ctx, req.GetTake(), req.GetSkip())
+
+	if err != nil {
+		return &rkt.GetRocketListResponse{}, err
+	}
+
+	var rocketsProto []*rkt.Rocket
+
+	for _, rocketEntity := range rocketsArray {
+		rocketProto := &rkt.Rocket{
+			Id:   rocketEntity.ID,
+			Name: rocketEntity.Name,
+			Type: rocketEntity.Type,
+		}
+		rocketsProto = append(rocketsProto, rocketProto)
+	}
+
+	return &rkt.GetRocketListResponse{
+		Rockets: rocketsProto,
 	}, nil
 }
 

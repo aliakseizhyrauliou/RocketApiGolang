@@ -6,6 +6,7 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/lib/pq"
 	"log"
+	"os"
 )
 
 func (s *Store) Migrate() error {
@@ -14,8 +15,10 @@ func (s *Store) Migrate() error {
 		return err
 	}
 
+	migrationPath := os.Getenv("MIGRATION_PATH")
+
 	m, err := migrate.NewWithDatabaseInstance(
-		"file:../../migrations",
+		migrationPath,
 		"postgres",
 		driver,
 	)

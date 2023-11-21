@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"github.com/aliakseizhyrauliou/gRPCApiGo/internal/rocket"
 	"github.com/jmoiron/sqlx"
+	"golang.org/x/net/context"
+	"os"
 )
 
 type Store struct {
@@ -12,12 +14,12 @@ type Store struct {
 
 func New() (Store, error) {
 
-	dbUsername := /*os.Getenv("DB_USERNAME")*/ "postgres"
-	dbPassword := /*os.Getenv("DB_PASSWORD")*/ "postgres"
-	dbHost := /*os.Getenv("DB_HOST")*/ "localhost"
-	dbTable := /*os.Getenv("DB_TABLE")*/ "postgres"
-	dbPort := /*os.Getenv("DB_PORT")*/ "5432"
-	dbSSLMode := /*os.Getenv("DB_SSL_MODE")*/ "disable"
+	dbUsername := os.Getenv("DB_USERNAME")
+	dbPassword := os.Getenv("DB_PASSWORD")
+	dbHost := os.Getenv("DB_HOST")
+	dbTable := os.Getenv("DB_TABLE")
+	dbPort := os.Getenv("DB_PORT")
+	dbSSLMode := os.Getenv("DB_SSL_MODE")
 
 	connectionString := fmt.Sprintf(
 		"host=%s port=%s user=%s dbname=%s password=%s sslmode=%s",
@@ -40,7 +42,7 @@ func New() (Store, error) {
 	}, nil
 }
 
-func (s Store) GetRocketByID(id string) (rocket.Rocket, error) {
+func (s Store) GetRocketByID(ctx context.Context, id string) (rocket.Rocket, error) {
 	var rkt rocket.Rocket
 	err := s.db.Get(&rkt, "SELECT * FROM rockets WHERE id=$1", id)
 	if err != nil {
@@ -50,7 +52,7 @@ func (s Store) GetRocketByID(id string) (rocket.Rocket, error) {
 	return rkt, nil
 }
 
-func (s Store) InsertRocket(rkt rocket.Rocket) (rocket.Rocket, error) {
+func (s Store) InsertRocket(ctx context.Context, rkt rocket.Rocket) (rocket.Rocket, error) {
 	rows, err := s.db.NamedQuery(
 		`INSERT INTO rockets (name, type) VALUES (:name, :type) RETURNING id`,
 		rkt,
@@ -75,10 +77,23 @@ func (s Store) InsertRocket(rkt rocket.Rocket) (rocket.Rocket, error) {
 	return rkt, nil
 }
 
-func (s Store) DeleteRocket(id string) error {
+func (s Store) DeleteRocket(ctx context.Context, id string) error {
 	_, err := s.db.Exec("DELETE FROM rockets WHERE id=$1", id)
 	if err != nil {
 		return err
 	}
 	return nil
+}
+
+func (s Store) GetRocketList(ctx context.Context, take int32, skip int32) ([]rocket.Rocket, error) {
+
+	var rockets []rocket.Rocket
+
+	err := s.db.Select(&rockets, "SELECT * FROM rockets ORDER BY id LIMIT $1 OFFSET $2", take, skip)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return rockets, nil
 }
