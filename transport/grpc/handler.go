@@ -16,19 +16,17 @@ type GRPCRocketService struct {
 
 func (serv *GRPCRocketService) GetRocket(ctx context.Context, req *rkt.GetRocketRequest) (*rkt.GetRocketResponse, error) {
 
-	rocket, err := serv.GetRocketByID(ctx, req.GetId())
+	databaseRocket, err := serv.Service.GetRocketByID(ctx, req.GetId())
 	if err != nil {
 		return nil, err
 	}
 
-	// Преобразование вашего внутреннего типа Rocket в протобуф-тип
 	protoRocket := &rkt.Rocket{
-		Id:   rocket.ID,
-		Name: rocket.Name,
-		Type: rocket.Type,
+		Id:   databaseRocket.ID,
+		Name: databaseRocket.Name,
+		Type: databaseRocket.Type,
 	}
 
-	// Создание ответа
 	response := &rkt.GetRocketResponse{
 		Rocket: protoRocket,
 	}
@@ -37,12 +35,41 @@ func (serv *GRPCRocketService) GetRocket(ctx context.Context, req *rkt.GetRocket
 
 }
 
-func (srv *GRPCRocketService) AddRocket(context.Context, *rkt.AddRocketRequest) (*rkt.AddRocketResponse, error) {
-	return &rkt.AddRocketResponse{}, nil
+func (srv *GRPCRocketService) AddRocket(ctx context.Context, req *rkt.AddRocketRequest) (*rkt.AddRocketResponse, error) {
+	protoRocket := req.GetRocket()
+
+	databaseRocket, err := srv.Service.InsertRocket(ctx, rocket.Rocket{
+		Name: protoRocket.Name,
+		Type: protoRocket.Type,
+	})
+
+	if err != nil {
+		return &rkt.AddRocketResponse{}, err
+	}
+
+	return &rkt.AddRocketResponse{
+		Rocket: &rkt.Rocket{
+			Id:   databaseRocket.ID,
+			Name: databaseRocket.Name,
+			Type: databaseRocket.Type,
+		},
+	}, nil
 }
 
-func (srv *GRPCRocketService) DeleteRocket(context.Context, *rkt.DeleteRocketRequest) (*rkt.DeleteRocketResponse, error) {
-	return &rkt.DeleteRocketResponse{}, nil
+func (srv *GRPCRocketService) DeleteRocket(ctx context.Context, req *rkt.DeleteRocketRequest) (*rkt.DeleteRocketResponse, error) {
+	protoRocket := req.GetRocket()
+
+	err := srv.Service.DeleteRocket(ctx, protoRocket.Id)
+
+	if err != nil {
+		return &rkt.DeleteRocketResponse{
+			Status: "ERROR",
+		}, err
+	}
+
+	return &rkt.DeleteRocketResponse{
+		Status: "OK",
+	}, nil
 }
 
 // StartGRPCServer starts Ports GRPC server
