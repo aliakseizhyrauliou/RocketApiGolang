@@ -1,4 +1,20 @@
-protoc --go_out=paths=source_relative:. --go-grpc_out=paths=source_relative:. *.proto
+#Rokcet API 
+Golang, gRPC, sqlx, PostgreSql, Docker, protoc
 
-$ go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
-$ go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2
+##Run service:
+
+  Local: Edit .env file in /cmd/server according to your database. Launch
+  Docker: docker-compose up -d in project root
+
+
+
+##For generation/regeneration .pb and _grpc.pb run this command in protos/rocket/v1: 
+
+  protoc --go_out=paths=source_relative:. --go-grpc_out=paths=source_relative:. *.proto
+
+
+
+##Required binares:
+
+  go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
+  go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2
