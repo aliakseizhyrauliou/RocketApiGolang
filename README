@@ -1,5 +1,5 @@
 # Rokcet API 
-Golang, gRPC, sqlx, PostgreSql, Docker, protoc
+Golang, gRPC, sqlx, PostgreSql, Docker, protoc, Kubernetes(minikube/VirtualBox)
 
 ## Run service:
 

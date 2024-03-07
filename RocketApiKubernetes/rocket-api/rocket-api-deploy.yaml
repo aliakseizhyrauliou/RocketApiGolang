@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rocket-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: rocket-api
+  template:
+    metadata:
+      labels:
+        app: rocket-api
+    spec:
+      containers:
+      - name: rocket-api
+        image: aliakseizhurauliou/rocket-api-k8s
+        env:
+          - name: DB_USERNAME
+            valueFrom:
+              configMapKeyRef:
+                name: rocket-app-config
+                key: DB_USERNAME
+          - name: DB_PASSWORD
+            valueFrom:
+              configMapKeyRef:
+                name: rocket-app-config
+                key: DB_PASSWORD
+          - name: DB_HOST
+            valueFrom:
+              configMapKeyRef:
+                name: rocket-app-config
+                key: DB_HOST
+          - name: DB_TABLE
+            valueFrom:
+              configMapKeyRef:
+                name: rocket-app-config
+                key: DB_TABLE
+          - name: DB_PORT
+            valueFrom:
+              configMapKeyRef:
+                name: rocket-app-config
+                key: DB_PORT
+          - name: DB_SSL_MODE
+            valueFrom:
+              configMapKeyRef:
+                name: rocket-app-config
+                key: DB_SSL_MODE
+          - name: MIGRATION_PATH
+            valueFrom:
+              configMapKeyRef:
+                name: rocket-app-config
+                key: MIGRATION_PATH
+          - name: SERVER_ENV
+            value: production
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 50051
