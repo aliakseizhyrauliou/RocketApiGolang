@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: rocket-api
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   selector:
     app: rocket-api
   ports:
